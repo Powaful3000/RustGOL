@@ -1,0 +1,15 @@
+[package]
+name = "RustGOL"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+once_cell = "1.10.0"
+
+[[bin]]
+name = "main"
+path = "src/bin/main.rs"
+
+[[bin]]
+name = "testing"
+path = "src/bin/testing.rs"
