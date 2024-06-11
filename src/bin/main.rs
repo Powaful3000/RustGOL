@@ -10,9 +10,11 @@ use std::{thread::sleep, time::Duration, vec};
 // dead cell with 3 neighbors becomes live cell
 
 // 2D vector representing board of alive and dead cells
-const COLUMN_SIZE: usize = 16;
-const ROW_SIZE: usize = 32;
-const REFRESH_RATE_MILLIS: u64 = 50;
+const COLUMN_SIZE: usize = 8;
+const ROWS: usize = 8;
+const ROW_SIZE: usize = 16;
+const COLUMNS: usize = 16;
+const LOOP_SLEEP_DUR: u64 = 50;
 
 //// Board struct
 // yx over xy for memory optimization
@@ -25,7 +27,7 @@ impl Board {
     // creates full 2d board of all 0 (false)
     pub fn new() -> Self {
         Board {
-            yx: vec![vec![false; COLUMN_SIZE]; ROW_SIZE],
+            yx: vec![vec![false; ROWS]; COLUMNS],
         }
     }
 }
@@ -168,7 +170,9 @@ fn print_board(board: &mut Board, padding_lines: u32) {
                 char_index = (((ROW_SIZE + 1) * x) + y + 1);
                 
                 println!("(x,y,char_index): {}, {}, {}", y, x, char_index);
-                string_vec[char_index % vec_length] = '#';
+                // string_vec[char_index % vec_length] = '#';
+                string_vec[char_index] = '#';
+
             }
         }
     }
@@ -197,7 +201,7 @@ fn main() {
         print_board(&mut front_board, 1);
 
         // Pause the program for a specified duration
-        sleep(Duration::from_millis(REFRESH_RATE_MILLIS));
+        sleep(Duration::from_millis(LOOP_SLEEP_DUR));
         // break;
     }
 }
