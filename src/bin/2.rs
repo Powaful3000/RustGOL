@@ -178,6 +178,7 @@ impl Universe {
     }
 }
 
+// Trying to OOP to simplify main as much as possible
 fn main() {
     // Create Universe
     let mut universe: Universe = Universe::new(BOARD_WIDTH, BOARD_HEIGHT);
