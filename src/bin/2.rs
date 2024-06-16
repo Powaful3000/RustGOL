@@ -58,38 +58,6 @@ impl Board {
 
     // calculate number of neighbors a cell has
     // **wrapping around edges**
-    // fn calculate_neighbors(&self, x: u32, y: u32) -> u32 {
-    //     // let idx: u32 = self.get_index(x, y);
-    //     let mut neighbor_idx: u32 = 0;
-    //     let mut neighbor_x: u32 = 0;
-    //     let mut neighbor_y: u32 = 0;
-    //     let mut count: u32 = 0;
-    //     // loop y (by row)
-    //     for i in -1..=1 {
-    //         // loop x (by row)
-    //         for j in -1..=1 {
-    //             // skip self
-    //             if j == 0 && i == 0 {
-    //                 continue;
-    //             }
-    //             // calculate neighbor index from offsets
-    //             neighbor_x = ((x as i32 + j) % self.width as i32) as u32;
-    //             neighbor_y = ((y as i32 + i) & self.height as i32) as u32;
-    //             neighbor_idx = self.get_index(neighbor_x, neighbor_y);
-    //             // if cell is living, increment count
-    //             if self.get_cell_index(neighbor_idx) {
-    //                 count += 1;
-    //             }
-    //         }
-    //     }
-    //     if count != 0 {
-    //         println!(
-    //             "count: {}, x: {}, y: {}, idx: {}",
-    //             count, x, y, neighbor_idx
-    //         );
-    //     }
-    //     return count;
-    // }
     fn calculate_neighbors(&self, x: u32, y: u32) -> u32 {
         let mut count: u32 = 0;
 
@@ -109,20 +77,6 @@ impl Board {
         count
     }
 
-    // fn query_cell_fate(&mut self, x: u32, y: u32) -> bool {
-    //     let mut alive: bool = self.get_cell(x, y);
-    //     let neighbors: u32 = self.calculate_neighbors(x, y);
-    //     // check conway rules
-    //     if alive && (neighbors < 2 || neighbors > 3) {
-    //         // kill alive cells is under or over popped
-    //         alive = false;
-    //     }
-    //     if !alive && neighbors == 3 {
-    //         // birth new cell if dead cell has 3 neighbors
-    //         alive = true;
-    //     }
-    //     return alive;
-    // }
     fn query_cell_fate(&self, x: u32, y: u32) -> bool {
         let alive = self.get_cell(x, y);
         let neighbors = self.calculate_neighbors(x, y);
