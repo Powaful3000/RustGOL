@@ -25,8 +25,10 @@ impl Board {
     }
     // return byte location based off x,y search
     fn get_index(&self, x: u32, y: u32) -> u32 {
-        print!("x: {}, y: {}, index: ", x, y);
-        let index = x + (y * self.width);
+        let wrapped_x = x % self.width;
+        let wrapped_y = y % self.height;
+        print!("x: {}, y: {}, index: ", wrapped_x, wrapped_y);
+        let index = wrapped_x + (wrapped_y * self.width);
         println!("{}", index);
         return index;
     }
@@ -72,7 +74,7 @@ impl Board {
                 neighbor_y = ((y as i32 + i) & self.height as i32) as u32;
                 neighbor_idx = self.get_index(neighbor_x, neighbor_y);
                 // if cell is living, increment count
-                if (self.get_cell_index(neighbor_idx)) {
+                if self.get_cell_index(neighbor_idx) {
                     count += 1;
                 }
             }
@@ -84,11 +86,11 @@ impl Board {
         let mut alive: bool = self.get_cell(x, y);
         let neighbors: u32 = self.calculate_neighbors(x, y);
         // check conway rules
-        if (alive && (neighbors < 2 || neighbors > 3)) {
+        if alive && (neighbors < 2 || neighbors > 3) {
             // kill alive cells is under or over popped
             alive = false;
         }
-        if (!alive && neighbors == 3) {
+        if !alive && neighbors == 3 {
             // birth new cell if dead cell has 3 neighbors
             alive = true;
         }
@@ -147,8 +149,8 @@ impl Universe {
 
         // loop cells
         // left to right read via yx
-        for y in 0..&self.front_board.height - 1 {
-            for x in 0..&self.front_board.width - 1 {
+        for y in 0..self.front_board.height {
+            for x in 0..self.front_board.width {
                 self.back_board
                     .set_cell(x, y, self.front_board.query_cell_fate(x, y));
             }
