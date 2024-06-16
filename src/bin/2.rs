@@ -27,9 +27,9 @@ impl Board {
     fn get_index(&self, x: u32, y: u32) -> u32 {
         let wrapped_x = x % self.width;
         let wrapped_y = y % self.height;
-        print!("x: {}, y: {}, index: ", wrapped_x, wrapped_y);
+        // print!("x: {}, y: {}, index: ", wrapped_x, wrapped_y);
         let index = wrapped_x + (wrapped_y * self.width);
-        println!("{}", index);
+        // println!("{}", index);
         return index;
     }
 
@@ -55,46 +55,86 @@ impl Board {
 
     // calculate number of neighbors a cell has
     // **wrapping around edges**
+    // fn calculate_neighbors(&self, x: u32, y: u32) -> u32 {
+    //     // let idx: u32 = self.get_index(x, y);
+    //     let mut neighbor_idx: u32 = 0;
+    //     let mut neighbor_x: u32 = 0;
+    //     let mut neighbor_y: u32 = 0;
+    //     let mut count: u32 = 0;
+    //     // loop y (by row)
+    //     for i in -1..=1 {
+    //         // loop x (by row)
+    //         for j in -1..=1 {
+    //             // skip self
+    //             if j == 0 && i == 0 {
+    //                 continue;
+    //             }
+    //             // calculate neighbor index from offsets
+    //             neighbor_x = ((x as i32 + j) % self.width as i32) as u32;
+    //             neighbor_y = ((y as i32 + i) & self.height as i32) as u32;
+    //             neighbor_idx = self.get_index(neighbor_x, neighbor_y);
+    //             // if cell is living, increment count
+    //             if self.get_cell_index(neighbor_idx) {
+    //                 count += 1;
+    //             }
+    //         }
+    //     }
+    //     if count != 0 {
+    //         println!(
+    //             "count: {}, x: {}, y: {}, idx: {}",
+    //             count, x, y, neighbor_idx
+    //         );
+    //     }
+    //     return count;
+    // }
     fn calculate_neighbors(&self, x: u32, y: u32) -> u32 {
-        let idx: u32 = self.get_index(x, y);
-        let mut neighbor_idx: u32 = 0;
-        let mut neighbor_x: u32 = 0;
-        let mut neighbor_y: u32 = 0;
         let mut count: u32 = 0;
-        // loop y (by row)
-        for i in -1..=1 {
-            // loop x (by row)
-            for j in -1..=1 {
-                // skip self
-                if j == 0 && i == 0 {
-                    continue;
-                }
-                // calculate neighbor index from offsets
-                neighbor_x = ((x as i32 + j) % self.width as i32) as u32;
-                neighbor_y = ((y as i32 + i) & self.height as i32) as u32;
-                neighbor_idx = self.get_index(neighbor_x, neighbor_y);
-                // if cell is living, increment count
-                if self.get_cell_index(neighbor_idx) {
-                    count += 1;
+
+        for dy in 0..3 {
+            for dx in 0..3 {
+                let neighbor_x = (x as i32 + dx as i32 - 1) as u32 % self.width;
+                let neighbor_y = (y as i32 + dy as i32 - 1) as u32 % self.height;
+
+                if neighbor_x != x || neighbor_y != y {
+                    if self.get_cell(neighbor_x, neighbor_y) {
+                        count += 1;
+                    }
                 }
             }
         }
+
         return count;
     }
 
-    fn query_cell_fate(&mut self, x: u32, y: u32) -> bool {
-        let mut alive: bool = self.get_cell(x, y);
-        let neighbors: u32 = self.calculate_neighbors(x, y);
-        // check conway rules
-        if alive && (neighbors < 2 || neighbors > 3) {
-            // kill alive cells is under or over popped
-            alive = false;
+    // fn query_cell_fate(&mut self, x: u32, y: u32) -> bool {
+    //     let mut alive: bool = self.get_cell(x, y);
+    //     let neighbors: u32 = self.calculate_neighbors(x, y);
+    //     // check conway rules
+    //     if alive && (neighbors < 2 || neighbors > 3) {
+    //         // kill alive cells is under or over popped
+    //         alive = false;
+    //     }
+    //     if !alive && neighbors == 3 {
+    //         // birth new cell if dead cell has 3 neighbors
+    //         alive = true;
+    //     }
+    //     return alive;
+    // }
+    fn query_cell_fate(&self, x: u32, y: u32) -> bool {
+        let alive = self.get_cell(x, y);
+        let neighbors = self.calculate_neighbors(x, y);
+
+        // Check Conway's Game of Life rules
+        if alive && (neighbors == 2 || neighbors == 3) {
+            // Live cell with 2 or 3 neighbors survives
+            return true;
+        } else if !alive && neighbors == 3 {
+            // Dead cell with 3 live neighbors becomes alive
+            return true;
+        } else {
+            // All other cases, the cell dies or remains dead
+            return false;
         }
-        if !alive && neighbors == 3 {
-            // birth new cell if dead cell has 3 neighbors
-            alive = true;
-        }
-        return alive;
     }
     // set user defined initial Board state
     fn set_init_state(&mut self) {
@@ -156,7 +196,9 @@ impl Universe {
             }
         }
         // clone resulting back board into front board
-        self.front_board = self.back_board.clone();
+        // self.front_board = self.back_board.clone();
+        // Swap the front and back boards
+        std::mem::swap(&mut self.front_board, &mut self.back_board);
     }
 
     fn draw_universe(&self) {
@@ -184,7 +226,9 @@ impl Universe {
 fn main() {
     // Create Universe
     let mut universe: Universe = Universe::new(BOARD_WIDTH, BOARD_HEIGHT);
-    universe.draw_universe();
-    universe.update_universe();
-    universe.draw_universe();
+    loop {
+        universe.draw_universe();
+        universe.update_universe();
+        // universe.draw_universe();
+    }
 }
