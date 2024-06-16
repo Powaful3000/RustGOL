@@ -1,6 +1,8 @@
 //// Rust learning endeavor
 //// John Conway's game of life impl in rust
 
+extern crate rayon;
+use rayon::prelude::*;
 use std::{thread, time::Duration};
 
 const BOARD_WIDTH: u32 = 32;
@@ -61,20 +63,22 @@ impl Board {
     fn calculate_neighbors(&self, x: u32, y: u32) -> u32 {
         let mut count: u32 = 0;
 
-        for dy in 0..3 {
-            for dx in 0..3 {
-                let neighbor_x = (x as i32 + dx as i32 - 1) as u32 % self.width;
-                let neighbor_y = (y as i32 + dy as i32 - 1) as u32 % self.height;
+        (0..3)
+            .into_par_iter()
+            .flat_map(|dy| {
+                (0..3)
+                    .into_par_iter()
+                    .map(move |dx| {
+                        let neighbor_x = (x as i32 + dx as i32 - 1) as u32 % self.width;
+                        let neighbor_y = (y as i32 + dy as i32 - 1) as u32 % self.height;
 
-                if neighbor_x != x || neighbor_y != y {
-                    if self.get_cell(neighbor_x, neighbor_y) {
-                        count += 1;
-                    }
-                }
-            }
-        }
-
-        count
+                        (neighbor_x, neighbor_y)
+                    })
+                    .filter(|&(neighbor_x, neighbor_y)| neighbor_x != x || neighbor_y != y)
+                    .filter(|&(neighbor_x, neighbor_y)| self.get_cell(neighbor_x, neighbor_y))
+                    .collect::<Vec<_>>()
+            })
+            .count() as u32
     }
 
     fn query_cell_fate(&self, x: u32, y: u32) -> bool {
