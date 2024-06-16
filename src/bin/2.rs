@@ -1,8 +1,11 @@
 //// Rust learning endeavor
 //// John Conway's game of life impl in rust
 
+use std::{thread, time::Duration};
+
 const BOARD_WIDTH: u32 = 32;
 const BOARD_HEIGHT: u32 = 16;
+const UPDATE_SLEEP: Duration = Duration::from_millis(250);
 
 #[derive(Clone, Debug)]
 struct Board {
@@ -103,7 +106,7 @@ impl Board {
             }
         }
 
-        return count;
+        count
     }
 
     // fn query_cell_fate(&mut self, x: u32, y: u32) -> bool {
@@ -230,5 +233,6 @@ fn main() {
         universe.draw_universe();
         universe.update_universe();
         // universe.draw_universe();
+        thread::sleep(UPDATE_SLEEP);
     }
 }
